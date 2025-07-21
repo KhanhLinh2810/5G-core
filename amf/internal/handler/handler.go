@@ -1,4 +1,4 @@
-package ue_handler
+package handler
 
 import (
 	"bytes"

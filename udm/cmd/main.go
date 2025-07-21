@@ -38,7 +38,7 @@ func main() {
 		})
 	})
 
-	router.GET("/ue-session", handler.UERequestHandler)
+	router.GET("/nudm-sdm/v2/:imsi/sm-data", handler.GetSDMData)
 
 	// server running
 	router.Run(addr)
