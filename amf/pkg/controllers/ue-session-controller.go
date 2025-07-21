@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"log"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 
@@ -10,24 +11,29 @@ import (
 )
 
 func UECreateSession(c *gin.Context) {
+	// Tạo mock request
 	csrJSON := services.MockDataForUERequestHandler()
-	
-	// // send to SMF
-	// resp, err := services.CreateSession(csrJSON)
-	// if err != nil {
-	// 	c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to send to SMF"})
-	// 	return
-	// }
-	// defer resp.Body.Close()
 
-	// // Log response from SMF
-	// log.Println("AMF received response from SMF, status:", resp.Status)
+	// Gửi request tới SMF
+	resp, err := services.CreateSession(csrJSON)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{
+			"error": fmt.Sprintf("Failed to send to SMF: %v", err),
+		})
+		return
+	}
+	if resp == nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "SMF response is nil"})
+		return
+	}
+	defer resp.Body.Close()
 
-	// // Respond to client
-	// c.JSON(http.StatusOK, gin.H{"status": "Session request processed", "smfStatus": resp.Status})
-		
-	
-	log.Println("AMF received response from SMF, status:", csrJSON)
+	// Log status
+	log.Println("AMF received response from SMF, status:", resp.Status)
 
-	c.JSON(http.StatusOK, gin.H{"status": "Session request processed", "smfStatus": 200})
+	// Trả response về client
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "Session request processed",
+		"smfStatus": resp.Status,
+	})
 }
