@@ -38,7 +38,7 @@ func main() {
 		})
 	})
 
-	router.GET("/ue-session", handler.UERequestHandler)
+	router.POST("/nsmf-pdusession/v1/sm-contexts", handler.CreateSession)
 
 	// server running
 	router.Run(addr)

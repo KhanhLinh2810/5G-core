@@ -1,13 +1,16 @@
-package ue_service
+package services
 
 import (
+	"bytes"
 	"encoding/json"
+	"net/http"
+	
+	"github.com/KhanhLinh2810/5G-core/amf/internal/types"
 
-	"github.com/KhanhLinh2810/5G-core/amf/internal/type"
 )
 
 func MockDataForUERequestHandler() []byte {
-	csr := type.TypeCreateSessionRequest{
+	csr := types.TypeCreateSessionRequest{
 		Supi:        "imsi-452040000000001",
 		Gpsi:        "msisdn-84900000001",
 		PduSessionID: 1,
@@ -23,4 +26,14 @@ func MockDataForUERequestHandler() []byte {
 		return nil
 	}
 	return csrJSON
+}
+
+func CreateSession(csrJSON []byte) (*http.Response, error) {
+	return nil, nil
+	smfURL := "http://localhost:8081/nsmf-pdusession/v1/sm-contexts"
+	resp, err := http.Post(smfURL, "application/json", bytes.NewBuffer(csrJSON))
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
