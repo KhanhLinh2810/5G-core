@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/KhanhLinh2810/5G-core/smf/internal/types"
+	"github.com/KhanhLinh2810/5G-core/smf/internal/services"
 )
 
 func AMFCreateSession(c *gin.Context) {
@@ -21,6 +22,14 @@ func AMFCreateSession(c *gin.Context) {
 	// Simulate SMF processing (e.g., validate IMSI with UDM, send PFCP to UPF, etc.)
 	// In a real system, you would add logic to:
 	// - Call UDM for IMSI validation
+	body, err := services.ValidateImsi(req.Supi)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{
+			"error": fmt.Sprintf("Failed to validate SUPI with UDM: %v", err),
+		})
+		return
+	}
+	fmt.Print(body)
 	// - Send PFCP Session Establishment to UPF
 	// - Store session in database
 	// - Return N1N2 Message Transfer to AMF

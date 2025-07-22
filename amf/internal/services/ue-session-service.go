@@ -11,15 +11,15 @@ import (
 
 func MockDataForUERequestHandler() []byte {
 	csr := types.TypeCreateSessionRequest{
-		Supi:        "imsi-452040000000001",
+		Supi:        "imsi-20893000000085",
 		Gpsi:        "msisdn-84900000001",
 		PduSessionID: 1,
-		Dnn:         "v-internet",
+		Dnn:         "iot",
 		ServingNHd:  "2ab2b5a9-68e8-4ee6-b939-024c109b520c",
 		AnType:      "3GPP_ACCESS",
 	}
-	csr.SNssai.Sst = 1
-	csr.SNssai.Sd = "000001"
+	csr.SNssai.Sst = 2
+	csr.SNssai.Sd = "112233"
 
 	csrJSON, err := json.Marshal(csr)
 	if err != nil {

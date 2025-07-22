@@ -8,6 +8,6 @@ import (
 func AMFRoutes(router *gin.Engine) {
 	amfRouter := router.Group("/")
 	{
-		amfRouter.POST("/nsmf-pdusession/v1/sm-contexts ", controllers.AMFCreateSession)
+		amfRouter.POST("/nsmf-pdusession/v1/sm-contexts", controllers.AMFCreateSession)
 	}
 }
