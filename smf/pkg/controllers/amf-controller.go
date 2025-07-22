@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/KhanhLinh2810/5G-core/smf/internal/types"
 	"github.com/KhanhLinh2810/5G-core/smf/internal/services"
@@ -32,6 +33,19 @@ func AMFCreateSession(c *gin.Context) {
 	fmt.Print(body)
 	// - Send PFCP Session Establishment to UPF
 	// - Store session in database
+	pfcpMsg := &types.PFCPMessage{
+		MessageType: 50,
+		PDNType:     "IPv4",
+		IPAddress:   "10.11.22.123",
+		SessionID:   uuid.NewString(),
+	}
+
+	resp, err := services.SendPFCPJsonUDP(pfcpMsg, "127.0.0.1:8805")
+	if err != nil {
+		c.JSON(502, gin.H{"error": "UPF PFCP failed", "details": err.Error()})
+		return
+	}
+	fmt.Print(resp)
 	// - Return N1N2 Message Transfer to AMF
 
 	message := fmt.Sprintf(

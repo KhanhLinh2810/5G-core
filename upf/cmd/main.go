@@ -43,7 +43,7 @@ func init() {
 
 func main() {
 	// Create UDP server
-	addr, err := net.ResolveUDPAddr("udp", "localhost:8805")
+	addr, err := net.ResolveUDPAddr("udp", "127.0.0.1:8805")
 	if err != nil {
 		fmt.Printf("Failed to resolve UDP address: %v\n", err)
 		return
@@ -64,6 +64,8 @@ func main() {
 	for {
 		// Read incoming UDP message
 		n, remoteAddr, err := conn.ReadFromUDP(buffer)
+		fmt.Printf("UDP received from %v: %s\n", remoteAddr, string(buffer[:n]))
+
 		if err != nil {
 			fmt.Printf("Error reading UDP message: %v\n", err)
 			continue
@@ -116,6 +118,7 @@ func main() {
 		}
 
 		// Send success response
+		fmt.Printf("send response ...")
 		sendResponse(conn, remoteAddr, PFCPResponse{
 			Status:  "success",
 			Message: fmt.Sprintf("PFCP Session established for Session ID: %s", pfcpMsg.SessionID),
