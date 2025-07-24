@@ -3,10 +3,12 @@ package controllers
 import (
 	"net/http"
 	"fmt"
+	// "sync"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
 	"github.com/KhanhLinh2810/5G-core/smf/internal/types"
+	// "github.com/KhanhLinh2810/5G-core/smf/internal/models"
 	"github.com/KhanhLinh2810/5G-core/smf/internal/services"
 )
 
@@ -20,9 +22,7 @@ func AMFCreateSession(c *gin.Context) {
 		return
 	}
 
-	// Simulate SMF processing (e.g., validate IMSI with UDM, send PFCP to UPF, etc.)
-	// In a real system, you would add logic to:
-	// - Call UDM for IMSI validation
+	// Validate SUPI với UDM
 	body, err := services.ValidateImsi(req.Supi)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
@@ -30,35 +30,37 @@ func AMFCreateSession(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Print(body)
-	// - Send PFCP Session Establishment to UPF
-	// - Store session in database
-	pfcpMsg := &types.PFCPMessage{
-		MessageType: 50,
-		PDNType:     "IPv4",
-		IPAddress:   "10.11.22.123",
-		SessionID:   uuid.NewString(),
-	}
+	fmt.Printf("response of udm: %s\n", body)
 
-	resp, err := services.SendPFCPJsonUDP(pfcpMsg, "127.0.0.1:8805")
-	if err != nil {
-		c.JSON(502, gin.H{"error": "UPF PFCP failed", "details": err.Error()})
-		return
-	}
-	fmt.Print(resp)
-	// - Return N1N2 Message Transfer to AMF
+	// Trả kết quả luôn cho client
+	c.JSON(http.StatusOK, gin.H{
+		"status": "Session request accepted",
+	})
 
-	message := fmt.Sprintf(
-		"PDU Session created for IMSI: %s, PDU Session ID: %d",
-		req.Supi, req.PduSessionID,
-	)
+	go func() {
+		fmt.Println("Processing session in background...")
 
-	// For this example, return a success response
-	c.JSON(
-		http.StatusOK, 
-		gin.H{
-			"status": "Session request processed", 
-			"message": message,
-		},
-	)
+		pfcpMsg := &types.PFCPMessage{
+			MessageType: 50,
+			PDNType:     "IPv4",
+			IPAddress:   "10.11.22.123",
+			SessionID:   uuid.NewString(),
+		}
+
+		if err := services.SendPFCPJsonUDP(pfcpMsg, "127.0.0.1:8805"); err != nil {
+			fmt.Println("SendPFCPJsonUDP error:", err)
+		}
+
+		if err := services.SendN1N2Mess(&req); err != nil {
+			fmt.Println("SendN1N2Mess error:", err)
+		}
+
+		// Redis
+		// err := models.SaveSession(req.Supi)
+		// if err != nil {
+		//     fmt.Println("SaveSession error:", err)
+		// }
+
+		fmt.Println("Background session creation complete.")
+	}()
 }

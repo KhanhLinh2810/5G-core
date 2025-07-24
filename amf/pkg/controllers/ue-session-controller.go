@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/KhanhLinh2810/5G-core/amf/internal/services"
+	"github.com/KhanhLinh2810/5G-core/amf/internal/types"
 )
 
 func UECreateSession(c *gin.Context) {
@@ -39,5 +40,16 @@ func UECreateSession(c *gin.Context) {
 }
 
 func N1N2MessageTransfer(c *gin.Context) {
-	
+	var req types.N1N2MessageTransfer
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid request payload",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mess": "success recieve n1n2 message",
+	})
 }

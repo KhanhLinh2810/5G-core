@@ -11,7 +11,8 @@ import (
 
 func MockDataForUERequestHandler() []byte {
 	csr := types.TypeCreateSessionRequest{
-		Supi:        "imsi-20893000000085",
+		// Supi:        "imsi-20893000000085",
+		Supi:        "imsi-20893000000054",
 		Gpsi:        "msisdn-84900000001",
 		PduSessionID: 1,
 		Dnn:         "iot",

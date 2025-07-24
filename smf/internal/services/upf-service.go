@@ -10,24 +10,24 @@ import (
 	"github.com/KhanhLinh2810/5G-core/smf/internal/types"
 )
 
-func SendPFCPJsonUDP(msg *types.PFCPMessage, upfAddr string) (*types.PFCPResponse, error) {
+func SendPFCPJsonUDP(msg *types.PFCPMessage, upfAddr string) error {
 	// Serialize PFCPMessage to JSON
 	data, err := json.Marshal(msg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal PFCP message: %w", err)
+		return fmt.Errorf("failed to marshal PFCP message: %w", err)
 	}
 
 	// Create UDP connection
 	conn, err := net.Dial("udp", upfAddr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to dial UPF: %w", err)
+		return fmt.Errorf("failed to dial UPF: %w", err)
 	}
 	defer conn.Close()
 
 	// Send message
 	_, err = conn.Write(data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send PFCP: %w", err)
+		return fmt.Errorf("failed to send PFCP: %w", err)
 	}
 
 	// Set timeout and wait for response
@@ -35,13 +35,13 @@ func SendPFCPJsonUDP(msg *types.PFCPMessage, upfAddr string) (*types.PFCPRespons
 	buf := make([]byte, 1024)
 	n, err := conn.Read(buf)
 	if err != nil {
-		return nil, fmt.Errorf("failed to receive PFCP response: %w", err)
+		return fmt.Errorf("failed to receive PFCP response: %w", err)
 	}
 
 	var resp types.PFCPResponse
 	if err := json.Unmarshal(buf[:n], &resp); err != nil {
-		return nil, fmt.Errorf("failed to parse PFCP response: %w", err)
-	}
+		return fmt.Errorf("failed to parse PFCP response: %w", err)
+	}	
 
-	return &resp, nil
+	return nil
 }

@@ -32,11 +32,13 @@ func GetSDMDetail(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"supi":     session.Supi,
-		"dnn":      session.Dnn,
-		"stt":  	session.Sst,
-		"sd":  		session.Sd,
-	})
+	"supi": session.Supi,
+	"dnn":  session.Dnn,
+	"sNssai": map[string]interface{}{
+		"sst": session.Sst,
+		"sd":  session.Sd,
+	},})
+
 }
 
 func CreateSession(c *gin.Context) {
