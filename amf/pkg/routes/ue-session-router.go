@@ -8,6 +8,8 @@ import (
 func UESessionRoutes(router *gin.Engine) {
 	ueSessionRouter := router.Group("/ue-session")
 	{
-		ueSessionRouter.GET("/", controllers.UECreateSession)
+		ueSessionRouter.GET("/ue-session", controllers.UECreateSession)
+		ueSessionRouter.POST("/namf-comm/v1/ue-context/:imsi/n1-n2-messages", controllers.N1N2MessageTransfer)
+		
 	}
 }

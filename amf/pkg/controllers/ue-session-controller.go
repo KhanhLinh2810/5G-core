@@ -37,3 +37,7 @@ func UECreateSession(c *gin.Context) {
 		"smfStatus": resp.Status,
 	})
 }
+
+func N1N2MessageTransfer(c *gin.Context) {
+	
+}
