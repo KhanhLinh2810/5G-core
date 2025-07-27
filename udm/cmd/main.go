@@ -11,5 +11,5 @@ func main() {
 
 	router := gin.Default()
 	routes.SMFRoutes(router)
-	router.Run("localhost:8000") 
+	router.Run(":8000") 
 }

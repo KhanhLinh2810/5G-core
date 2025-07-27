@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"log"
 	"fmt"
+	"sync"
+
 
 	"github.com/gin-gonic/gin"
 
@@ -52,4 +54,44 @@ func N1N2MessageTransfer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"mess": "success recieve n1n2 message",
 	})
+}
+
+func MultiUECreateSession(c *gin.Context) {
+	var wg sync.WaitGroup
+	// Tạo mock request
+	csrJSON := services.MockDataForUERequestHandler()	
+	for i := 1; i <= 25; i++ {
+        wg.Add(1) 
+        go SendRequestCreateSessionToSMF(c, &wg, csrJSON)
+    }
+
+	wg.Wait()
+	// Trả response về client
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "Session request processed",
+		"smfStatus": "success",
+	})
+}
+
+func SendRequestCreateSessionToSMF(c *gin.Context, wg *sync.WaitGroup, csrJSON []byte) {
+	defer wg.Done()
+	numberOfRequest := 40
+	for i := 0; i < numberOfRequest; i++ {
+		// Gửi request tới SMF
+		resp, err := services.CreateSession(csrJSON)
+		if err != nil {
+			c.JSON(http.StatusBadGateway, gin.H{
+				"error": fmt.Sprintf("Failed to send to SMF: %v", err),
+			})
+			return
+		}
+		if resp == nil {
+			c.JSON(http.StatusBadGateway, gin.H{"error": "SMF response is nil"})
+			return
+		}
+		defer resp.Body.Close()
+
+		// Log status
+		log.Println("AMF received response from SMF, status:", resp.Status)
+	}
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/KhanhLinh2810/5G-core/smf/internal/types"
-	// "github.com/KhanhLinh2810/5G-core/smf/internal/models"
+	"github.com/KhanhLinh2810/5G-core/smf/internal/models"
 	"github.com/KhanhLinh2810/5G-core/smf/internal/services"
 )
 
@@ -38,8 +38,6 @@ func AMFCreateSession(c *gin.Context) {
 	})
 
 	go func() {
-		fmt.Println("Processing session in background...")
-
 		pfcpMsg := &types.PFCPMessage{
 			MessageType: 50,
 			PDNType:     "IPv4",
@@ -56,11 +54,9 @@ func AMFCreateSession(c *gin.Context) {
 		}
 
 		// Redis
-		// err := models.SaveSession(req.Supi)
-		// if err != nil {
-		//     fmt.Println("SaveSession error:", err)
-		// }
-
-		fmt.Println("Background session creation complete.")
+		err := models.SaveSession(&req)
+		if err != nil {
+		    fmt.Println("SaveSession error:", err)
+		}
 	}()
 }

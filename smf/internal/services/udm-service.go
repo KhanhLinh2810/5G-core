@@ -7,7 +7,7 @@ import (
 )
 
 func ValidateImsi(supi string) ([]byte, error) {
-	udmURL := fmt.Sprintf("http://localhost:8000/nudm-sdm/v2/%s/sm-data", supi)
+	udmURL := fmt.Sprintf("http://udm:8000/nudm-sdm/v2/%s/sm-data", supi)
 
 	// Gửi request GET
 	resp, err := http.Get(udmURL)

@@ -7,6 +7,10 @@ import (
 
 func main() {
 	router := gin.Default()
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
+	})
+
 	routes.UESessionRoutes(router)
-	router.Run("localhost:9010") 
+	router.Run(":9010") 
 }

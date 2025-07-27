@@ -29,7 +29,7 @@ var rdb *redis.Client
 func init() {
 	// Initialize Redis client
 	rdb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // Redis server address
+		Addr:     "db:6379", // Redis server address
 		Password: "",                // No password
 		DB:       0,                // Default DB
 	})
@@ -56,7 +56,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	fmt.Println("UPF server listening on localhost:8805...")
+	fmt.Println("UPF server listening on :8805...")
 
 	// Buffer for reading incoming messages
 	buffer := make([]byte, 1024)

@@ -11,5 +11,5 @@ func main() {
 
 	router := gin.Default()
 	routes.AMFRoutes(router)
-	router.Run("localhost:40") 
+	router.Run(":40") 
 }

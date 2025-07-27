@@ -12,7 +12,7 @@ func sessionKey(supi string) string {
 	return fmt.Sprintf("smf:session:%s", supi)
 }
 
-func SaveSession(s *types.N1N2MessageTransfer) error {
+func SaveSession(s *types.CreateSessionRequest) error {
 	data, err := json.Marshal(s)
 	if err != nil {
 		return err

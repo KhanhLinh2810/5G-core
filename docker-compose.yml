@@ -1,0 +1,35 @@
+services:
+  amf:
+    build:
+      context: .
+      dockerfile: ./amf/Dockerfile
+    ports:
+      - "9010:9010"
+  smf:
+    build:
+      context: .
+      dockerfile: ./smf/Dockerfile
+    ports:
+      - "40:40"
+    depends_on:
+      - db
+  udm:
+    build:
+      context: .
+      dockerfile: ./udm/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  upf:
+    build:
+      context: .
+      dockerfile: ./upf/Dockerfile
+    ports:
+      - "8805:8805/udp"
+    depends_on:
+      - db
+  db:
+    image: redis
+    ports:
+      - "6379:6379"
