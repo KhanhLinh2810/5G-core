@@ -95,3 +95,24 @@ func SendRequestCreateSessionToSMF(c *gin.Context, wg *sync.WaitGroup, csrJSON [
 		log.Println("AMF received response from SMF, status:", resp.Status)
 	}
 }
+
+
+func UpdateUECreateSession(c *gin.Context) {
+	csrJSON := services.MockDataForUpdateUERequestHandler()
+
+	// Gửi request tới SMF
+	resp, err := services.UpdateSession(csrJSON)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{
+			"error": fmt.Sprintf("Failed to send to SMF: %v", err),
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	// Trả response về client
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "Session request processed",
+		"smfStatus": resp.Status,
+	})
+}

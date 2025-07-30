@@ -10,7 +10,7 @@ import (
 )
 
 func SendN1N2Mess(sessionInfo *types.CreateSessionRequest) error {
-	amfURL := fmt.Sprintf("http://:9010/namf-comm/v1/ue-context/%s/n1-n2-messages", sessionInfo.Supi )
+	amfURL := fmt.Sprintf("http://amf:9010/namf-comm/v1/ue-context/%s/n1-n2-messages", sessionInfo.Supi )
 	jsonData, err := json.Marshal(sessionInfo)
 	if err != nil {
 		return fmt.Errorf("failed to marshal sessionInfo: %w", err)
