@@ -97,7 +97,24 @@ func SendRequestCreateSessionToSMF(c *gin.Context, wg *sync.WaitGroup, csrJSON [
 }
 
 
-func UpdateUECreateSession(c *gin.Context) {
+func UpdateUESession(c *gin.Context) {
+	actions := []string{"DEACTIVE", "HANDOVER", "ACTIVE", "CALL"}
+	// Gửi request tới SMF
+	for i := 0; i < 100; i++ {
+		go func() {
+			action := actions[rand.Intn(len(actions))]
+			UpdateSession(action)
+		}()
+	}
+	
+	// Trả response về client
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "Session request processed",
+		"smfStatus": resp.Status,
+	})
+}
+
+func ReleaseUESession(c *gin.Context) {
 	csrJSON := services.MockDataForUpdateUERequestHandler()
 
 	// Gửi request tới SMF

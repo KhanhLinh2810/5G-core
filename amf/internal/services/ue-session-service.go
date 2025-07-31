@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"fmt"
 	
 	"github.com/KhanhLinh2810/5G-core/amf/internal/types"
 
@@ -57,13 +58,35 @@ func MockDataForUpdateUERequestHandler(action string) []byte {
 	return csrJSON
 }
 
-func UpdateSession(csrJSON []byte) (*http.Response, error) {
+func UpdateSession(action string) (*http.Response, error) {
+	csrJSON := services.MockDataForUpdateUERequestHandler(action)
+
 	smfURL := "http://smf:40/nsmf-pdusession/v1/update-sm-contexts"
 	resp, err := http.Post(smfURL, "application/json", bytes.NewBuffer(csrJSON))
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("HTTP request failed: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusForbidden {
+		var data map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &data); err != nil {
+			log.Printf("Failed to parse JSON response: %v", err)
+			return
+		}
+
+		fmt.Printf("Message: %v\n", data["message"])
+		fmt.Printf("SUPI: %v\n", data["supi"])
+		fmt.Printf("Old Action: %v\n", data["old"])
+		fmt.Printf("New Action: %v\n", data["new"])
+	} else {
+		log.Printf("Unexpected status code: %d\nBody: %s", resp.StatusCode, string(bodyBytes))
+	}
 }
 
 // release

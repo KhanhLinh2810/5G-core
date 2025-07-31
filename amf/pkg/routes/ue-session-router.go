@@ -11,8 +11,8 @@ func UESessionRoutes(router *gin.Engine) {
 		ueSessionRouter.GET("/ue-session", controllers.UECreateSession)
 		ueSessionRouter.GET("/multi-ue-session", controllers.MultiUECreateSession)
 		ueSessionRouter.POST("/namf-comm/v1/ue-context/:imsi/n1-n2-messages", controllers.N1N2MessageTransfer)
-		ueSessionRouter.GET("/release-ue-session", controllers.ReleaseUECreateSession)
-		ueSessionRouter.GET("/update-ue-session", controllers.UpdateUECreateSession)
+		ueSessionRouter.GET("/release-ue-session", controllers.ReleaseUESession)
+		ueSessionRouter.GET("/update-ue-session", controllers.UpdateUESession)
 
 
 	}
