@@ -20,3 +20,18 @@ type SessionStore struct {
 	sessions map[string]Session
 }
 
+type JobType string
+
+const (
+	UpdateSMF      JobType = "UPDATE_SMF"
+	ProcessMessage JobType = "PROCESS_MESSAGE"
+	SendEmail      JobType = "SEND_EMAIL"
+)
+
+type Job struct {
+	ID      int
+	Type    JobType
+	Payload interface{}
+}
+
+

@@ -2,88 +2,25 @@ package controllers
 
 import (
 	"net/http"
-	"fmt"
-	// "sync"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-
 	"github.com/KhanhLinh2810/5G-core/smf/internal/types"
-	"github.com/KhanhLinh2810/5G-core/smf/internal/models"
-	"github.com/KhanhLinh2810/5G-core/smf/internal/services"
+	"github.com/KhanhLinh2810/5G-core/smf/internal/worker"
 )
 
 func CreateSessionSaveInMap(c *gin.Context) {
 	var req types.CreateSessionRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request payload",
-		})
-		return
-	}
-
-	// Validate SUPI với UDM
-	body, err := services.ValidateImsi(req.Supi)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{
-			"error": fmt.Sprintf("Failed to validate SUPI with UDM: %v", err),
-		})
-		return
-	}
-	fmt.Printf("response of udm: %s\n", body)
-
-	// Trả kết quả luôn cho client
-	c.JSON(http.StatusOK, gin.H{
-		"status": "Session request accepted",
-	})
-
-	go func() {
-		pfcpMsg := &types.PFCPMessage{
-			MessageType: 50,
-			PDNType:     "IPv4",
-			IPAddress:   "10.11.22.123",
-			SessionID:   uuid.NewString(),
-		}
-
-		if err := services.SendPFCPJsonUDP(pfcpMsg, "127.0.0.1:8805"); err != nil {
-			fmt.Println("SendPFCPJsonUDP error:", err)
-		}
-
-		if err := services.SendN1N2Mess(&req); err != nil {
-			fmt.Println("SendN1N2Mess error:", err)
-		}
-
-		session := models.Session{
-			Supi:         req.Supi,
-			Gpsi:         req.Gpsi,
-			PduSessionID: req.PduSessionID,
-			Dnn:          req.Dnn,
-			Action:       req.Action,
-		}
-
-		models.GlobalSessionStore.SaveSessionInMap(session)
-	}()
-}
-
-func ReleaseSession(c *gin.Context) {
-	var req types.ReleaseSessionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
 
-	_, found := store.GlobalSessionStore.Get(req.Supi)
-	if !found {
-		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
-		return
+	worker.JobQueue <- types.Job{
+		Type:    types.CreateSessionJob,
+		Payload: req,
 	}
 
-	model.GlobalSessionStore.Delete(req.Supi)
-	log.Printf("[Release] Deleted session for SUPI: %s", req.Supi)
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "session released",
-		"supi":    req.Supi,
+	c.JSON(http.StatusAccepted, gin.H{
+		"status": "Create session job enqueued",
 	})
 }
 
@@ -94,50 +31,29 @@ func UpdateSession(c *gin.Context) {
 		return
 	}
 
-	session, found := store.GlobalSessionStore.Get(req.Supi)
-	if !found {
-		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
-		return
+	worker.JobQueue <- types.Job{
+		Type:    types.UpdateSessionJob,
+		Payload: req,
 	}
 
-	isValidToUpdate := CheckValidActionToUpdate(req.Action, session.Action)
-	if !isValidToUpdate {
-		c.JSON(http.StatusForbidden, gin.H{
-			"error": fmt.Sprintf("cannot update action from %s to %s", session.Action, req.Action),
-		})
-		return
-	}
-
-	models.GlobalSessionStore.SaveSessionInMap(req) 
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		"supi":    req.Supi,
-		"old":     session.Action,
-		"new":     req.Action,
+	c.JSON(http.StatusAccepted, gin.H{
+		"status": "Update session job enqueued",
 	})
 }
 
-
-// other function
-func CheckValidActionToUpdate(actionNew, actionOld string) bool {
-	allowed := map[string][]string{
-		"ACTIVE":   {"DEACTIVE", "HANDOVER", "CALL"},
-		"DEACTIVE": {"ACTIVE", "HANDOVER"},
-		"HANDOVER": {"DEACTIVE", "HANDOVER", "ACTIVE"},
-		"CALL":     {"DEACTIVE", "HANDOVER", "ACTIVE"},
+func ReleaseSession(c *gin.Context) {
+	var req types.ReleaseSessionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
 	}
 
-	validNextActions, ok := allowed[actionOld]
-	if !ok {
-		return false 
+	worker.JobQueue <- types.Job{
+		Type:    types.ReleaseSessionJob,
+		Payload: req,
 	}
 
-	for _, a := range validNextActions {
-		if a == actionNew {
-			return true
-		}
-	}
-	return false
+	c.JSON(http.StatusAccepted, gin.H{
+		"status": "Release session job enqueued",
+	})
 }
-
