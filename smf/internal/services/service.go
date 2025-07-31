@@ -1,4 +1,4 @@
-package controllers
+package services
 
 // import (
 // 	"net/http"
@@ -12,16 +12,7 @@ package controllers
 // 	"github.com/KhanhLinh2810/5G-core/smf/internal/services"
 // )
 
-// func CreateSessionSaveInMap(c *gin.Context) {
-// 	var req types.CreateSessionRequest
-
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": "Invalid request payload",
-// 		})
-// 		return
-// 	}
-
+// func CreateSessionSaveInMap(req types.CreateSessionRequest) {
 // 	// Validate SUPI với UDM
 // 	body, err := services.ValidateImsi(req.Supi)
 // 	if err != nil {
@@ -65,14 +56,8 @@ package controllers
 // 	}()
 // }
 
-// func ReleaseSession(c *gin.Context) {
-// 	var req types.ReleaseSessionRequest
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
-// 		return
-// 	}
-
-// 	_, found := store.GlobalSessionStore.Get(req.Supi)
+// func ReleaseSession(req types.ReleaseSessionRequest) {
+// 		_, found := store.GlobalSessionStore.Get(req.Supi)
 // 	if !found {
 // 		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
 // 		return
@@ -87,14 +72,8 @@ package controllers
 // 	})
 // }
 
-// func UpdateSession(c *gin.Context) {
-// 	var req types.Session
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
-// 		return
-// 	}
-
-// 	session, found := store.GlobalSessionStore.Get(req.Supi)
+// func UpdateSession(req types.Session) {
+// 		session, found := store.GlobalSessionStore.Get(req.Supi)
 // 	if !found {
 // 		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
 // 		return
@@ -103,7 +82,10 @@ package controllers
 // 	isValidToUpdate := CheckValidActionToUpdate(req.Action, session.Action)
 // 	if !isValidToUpdate {
 // 		c.JSON(http.StatusForbidden, gin.H{
-// 			"error": fmt.Sprintf("cannot update action from %s to %s", session.Action, req.Action),
+// 			"message": "false",
+// 			"supi":    req.Supi,
+// 			"old":     session.Action,
+// 			"new":     req.Action,
 // 		})
 // 		return
 // 	}

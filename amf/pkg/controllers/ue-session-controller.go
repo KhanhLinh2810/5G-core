@@ -1,11 +1,10 @@
 package controllers
 
 import (
-	"net/http"
-	"log"
 	"fmt"
+	"log"
+	"net/http"
 	"sync"
-
 
 	"github.com/gin-gonic/gin"
 
@@ -59,11 +58,11 @@ func N1N2MessageTransfer(c *gin.Context) {
 func MultiUECreateSession(c *gin.Context) {
 	var wg sync.WaitGroup
 	// Tạo mock request
-	csrJSON := services.MockDataForUERequestHandler()	
+	csrJSON := services.MockDataForUERequestHandler()
 	for i := 1; i <= 25; i++ {
-        wg.Add(1) 
-        go SendRequestCreateSessionToSMF(c, &wg, csrJSON)
-    }
+		wg.Add(1)
+		go SendRequestCreateSessionToSMF(c, &wg, csrJSON)
+	}
 
 	wg.Wait()
 	// Trả response về client
@@ -96,40 +95,39 @@ func SendRequestCreateSessionToSMF(c *gin.Context, wg *sync.WaitGroup, csrJSON [
 	}
 }
 
+// func UpdateUESession(c *gin.Context) {
+// 	actions := []string{"DEACTIVE", "HANDOVER", "ACTIVE", "CALL"}
+// 	// Gửi request tới SMF
+// 	for i := 0; i < 100; i++ {
+// 		go func() {
+// 			action := actions[rand.Intn(len(actions))]
+// 			UpdateSession(action)
+// 		}()
+// 	}
 
-func UpdateUESession(c *gin.Context) {
-	actions := []string{"DEACTIVE", "HANDOVER", "ACTIVE", "CALL"}
-	// Gửi request tới SMF
-	for i := 0; i < 100; i++ {
-		go func() {
-			action := actions[rand.Intn(len(actions))]
-			UpdateSession(action)
-		}()
-	}
-	
-	// Trả response về client
-	c.JSON(http.StatusOK, gin.H{
-		"status":    "Session request processed",
-		"smfStatus": resp.Status,
-	})
-}
+// 	// Trả response về client
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"status":    "Session request processed",
+// 		"smfStatus": resp.Status,
+// 	})
+// }
 
-func ReleaseUESession(c *gin.Context) {
-	csrJSON := services.MockDataForUpdateUERequestHandler()
+// func ReleaseUESession(c *gin.Context) {
+// 	csrJSON := services.MockDataForUpdateUERequestHandler()
 
-	// Gửi request tới SMF
-	resp, err := services.UpdateSession(csrJSON)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{
-			"error": fmt.Sprintf("Failed to send to SMF: %v", err),
-		})
-		return
-	}
-	defer resp.Body.Close()
+// 	// Gửi request tới SMF
+// 	resp, err := services.UpdateSession(csrJSON)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadGateway, gin.H{
+// 			"error": fmt.Sprintf("Failed to send to SMF: %v", err),
+// 		})
+// 		return
+// 	}
+// 	defer resp.Body.Close()
 
-	// Trả response về client
-	c.JSON(http.StatusOK, gin.H{
-		"status":    "Session request processed",
-		"smfStatus": resp.Status,
-	})
-}
+// 	// Trả response về client
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"status":    "Session request processed",
+// 		"smfStatus": resp.Status,
+// 	})
+// }
