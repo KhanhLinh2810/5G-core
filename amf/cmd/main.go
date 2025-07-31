@@ -6,11 +6,13 @@ import (
 )
 
 func main() {
-	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
 
 	routes.UESessionRoutes(router)
-	router.Run(":9010") 
+	router.Run(":9010")
 }

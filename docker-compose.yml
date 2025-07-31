@@ -1,3 +1,9 @@
+networks:
+  mynet:
+    ipam:
+      config:
+        - subnet: 172.40.0.0/24
+
 services:
   amf:
     build:
@@ -31,5 +37,10 @@ services:
       - db
   db:
     image: redis
+    volumes:
+      - redis-data:/data
     ports:
       - "6379:6379"
+
+volumes:
+  redis-data: 

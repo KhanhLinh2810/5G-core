@@ -45,7 +45,7 @@ func AMFCreateSession(c *gin.Context) {
 			SessionID:   uuid.NewString(),
 		}
 
-		if err := services.SendPFCPJsonUDP(pfcpMsg, "127.0.0.1:8805"); err != nil {
+		if err := services.SendPFCPJsonUDP(pfcpMsg, "upf:8805"); err != nil {
 			fmt.Println("SendPFCPJsonUDP error:", err)
 		}
 

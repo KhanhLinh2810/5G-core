@@ -43,7 +43,7 @@ func init() {
 
 func main() {
 	// Create UDP server
-	addr, err := net.ResolveUDPAddr("udp", "127.0.0.1:8805")
+	addr, err := net.ResolveUDPAddr("udp", "upf:8805")
 	if err != nil {
 		fmt.Printf("Failed to resolve UDP address: %v\n", err)
 		return
