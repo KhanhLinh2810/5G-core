@@ -8,8 +8,9 @@ import (
 
 func main() {
 	config.ConnectRedis()
+	gin.SetMode(gin.ReleaseMode)
 
-	router := gin.Default()
+	router := gin.New()
 	routes.SMFRoutes(router)
 	router.Run(":8000") 
 }
