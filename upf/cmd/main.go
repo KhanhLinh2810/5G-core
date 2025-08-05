@@ -71,7 +71,7 @@ func main() {
 	for {
 		n, remoteAddr, err := conn.ReadFromUDP(buffer)
 		if err != nil {
-			fmt.Printf("Error reading UDP message: %v\n", err)
+			fmt.Printf("Error reading UDP messages: %v\n", err)
 			continue
 		}
 
@@ -103,7 +103,7 @@ func handlePFCPMessage(conn *net.UDPConn, data []byte, remoteAddr *net.UDPAddr) 
 	if err := json.Unmarshal(data, &pfcpMsg); err != nil {
 		sendResponse(conn, remoteAddr, PFCPResponse{
 			Status:  "error",
-			Message: fmt.Sprintf("Invalid PFCP message: %v", err),
+			Message: fmt.Sprintf("Invalid PFCP messages: %v", err),
 		})
 		return
 	}
