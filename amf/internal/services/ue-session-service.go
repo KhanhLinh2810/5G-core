@@ -3,10 +3,11 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"math/rand"
 	"net/http"
 
 	"github.com/KhanhLinh2810/5G-core/amf/internal/types"
-	"github.com/KhanhLinh2810/5G-core/smf/pkg/config"
+	"github.com/KhanhLinh2810/5G-core/amf/pkg/config"
 )
 
 func MockDataForUERequestHandler() []byte {
@@ -30,8 +31,10 @@ func MockDataForUERequestHandler() []byte {
 }
 
 func CreateSession(csrJSON []byte) (*http.Response, error) {
+	indexHttp := rand.Intn(config.NUM_CLIENT)
+	httpClient := config.ListHttpClient[indexHttp]
 	smfURL := "http://smf:40/nsmf-pdusession/v1/sm-contexts"
-	resp, err := config.HttpClient.Post(smfURL, "application/json", bytes.NewBuffer(csrJSON))
+	resp, err := httpClient.Post(smfURL, "", bytes.NewBuffer(csrJSON))
 	if err != nil {
 		return nil, err
 	}

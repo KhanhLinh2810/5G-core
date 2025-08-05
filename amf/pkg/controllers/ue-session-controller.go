@@ -81,6 +81,7 @@ func N1N2MessageTransfer(c *gin.Context) {
 
 func MultiUECreateSession(c *gin.Context) {
 	numberOfRequest := c.Param("request")
+
 	numRows, err := strconv.Atoi(numberOfRequest)
 	if err != nil || numRows <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid rowDb, must be integer"})
@@ -108,16 +109,23 @@ func MultiUECreateSession(c *gin.Context) {
 		}
 	}()
 
-	numberOfRoutine := int(math.Ceil(float64(numRows) / 100.0))
+	numberOfRequestSend := 500
 	tickerSendRequest := time.NewTicker(1 * time.Second)
-	timeout := time.After(30 * time.Second)
+	timeout := time.After(60 * time.Second)
 
 	for {
 		select {
 		case <-tickerSendRequest.C:
+			numberOfRoutine := int(math.Ceil(float64(numberOfRequestSend) / 100.0)) -1
 			for i := 1; i <= numberOfRoutine; i++ {
 				wg.Add(1)
-				go SendRequestCreateSessionToSMF(&wg, csrJSON, &countRequest)
+				go SendRequestCreateSessionToSMF(&wg, csrJSON, &countRequest, 100)
+			}
+			numberOfRequestInGoroutine := numberOfRequestSend - numberOfRoutine * 100
+			wg.Add(1)
+			go SendRequestCreateSessionToSMF(&wg, csrJSON, &countRequest, numberOfRequestInGoroutine)
+			if numberOfRequestSend < numRows {
+				numberOfRequestSend += 50
 			}
 			wg.Wait()
 		case <-timeout:
@@ -128,10 +136,9 @@ func MultiUECreateSession(c *gin.Context) {
 	}
 }
 
-func SendRequestCreateSessionToSMF(wg *sync.WaitGroup, csrJSON []byte, countRequest *int32) {
+func SendRequestCreateSessionToSMF(wg *sync.WaitGroup, csrJSON []byte, countRequest *int32, numberOfRequestInGoroutine int) {
 	defer wg.Done()
-	numberOfRequest := 100
-	for i := 0; i < numberOfRequest; i++ {
+	for i := 0; i < numberOfRequestInGoroutine; i++ {
 		// Gửi request tới SMF
 		atomic.AddInt32(countRequest, 1)
 		resp, err := services.CreateSession(csrJSON)

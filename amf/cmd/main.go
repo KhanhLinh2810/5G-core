@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/KhanhLinh2810/5G-core/amf/pkg/routes"
 	"github.com/gin-gonic/gin"
-	"github.com/KhanhLinh2810/5G-core/smf/pkg/config"
+	"github.com/KhanhLinh2810/5G-core/amf/pkg/config"
 
 )
 

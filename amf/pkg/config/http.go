@@ -1,28 +1,35 @@
 package config
 
 import (
+	"crypto/tls"
 	"net"
 	"net/http"
 	"time"
+
+	"golang.org/x/net/http2"
 )
 
-var HttpClient *http.Client
+const NUM_CLIENT = 32
+
+var ListHttpClient [NUM_CLIENT]*http.Client
 
 func InitHTTPClient() {
-	transport := &http.Transport{
-		MaxIdleConns:        500,
-		MaxIdleConnsPerHost: 100,
+	for i := 0; i < NUM_CLIENT; i++ {
+		transport := &http2.Transport{
+			AllowHTTP:                  true,
+			StrictMaxConcurrentStreams: false,
+			DisableCompression:         true,
+			IdleConnTimeout:            10 * time.Second,
+			DialTLS: func(network, addr string, cfg *tls.Config) (net.Conn, error) {
+				return net.DialTimeout(network, addr, 3*time.Second)
+			},
+		}
 
-		IdleConnTimeout:     90 * time.Second,
-		TLSHandshakeTimeout: 10 * time.Second,
-		DialContext: (&net.Dialer{
-			Timeout:   5 * time.Second,
-			KeepAlive: 30 * time.Second,
-		}).DialContext,
-	}
+		httpClient := &http.Client{
+			Transport: transport,
+			Timeout:   1 * time.Second,
+		}
 
-	HttpClient = &http.Client{
-		Transport: transport,
-		Timeout:   60 * time.Second,
+		ListHttpClient[i] = httpClient
 	}
 }
