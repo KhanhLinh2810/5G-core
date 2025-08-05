@@ -9,6 +9,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"io/ioutil"
+
 
 	"github.com/gin-gonic/gin"
 
@@ -25,16 +27,30 @@ func UECreateSession(c *gin.Context) {
 	// Gửi request tới SMF
 	resp, err := services.CreateSession(csrJSON)
 	if err != nil {
+		log.Printf("failed to send to SMF: %v", err)
 		c.JSON(http.StatusBadGateway, gin.H{
 			"error": fmt.Sprintf("Failed to send to SMF: %v", err),
 		})
 		return
 	}
 	if resp == nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "SMF response is nil"})
+		log.Printf("failed d to SMF: %v",resp)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "SMF response is nil"})
 		return
 	}
 	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("failed to send to SMF: %v", err)
+		c.JSON(http.StatusBadGateway, gin.H{
+			"error": fmt.Sprintf("Failed to send to SMF: %v", err),
+		})
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		c.JSON(resp.StatusCode, string(body))		
+	}
 
 	// Log status
 	log.Println("AMF received response from SMF, status:", resp.Status)
@@ -67,7 +83,7 @@ func MultiUECreateSession(c *gin.Context) {
 	numberOfRequest := c.Param("request")
 	numRows, err := strconv.Atoi(numberOfRequest)
 	if err != nil || numRows <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid rowDb, must be integer between 1-400"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid rowDb, must be integer"})
 		return
 	}
 	var countRequest int32
@@ -86,15 +102,15 @@ func MultiUECreateSession(c *gin.Context) {
 		for range ticker.C {
 			countReq := atomic.SwapInt32(&countRequest, 0)
 			log.Printf("=================================")
-			log.Printf("Requests sent in last 1 second: %d", countReq)
+			log.Printf("Requests sent in last 3 second: %d", countReq)
 			countRes := atomic.SwapInt32(&countResponseN1N2, 0)
-			log.Printf("Response recive in last 1 second: %d", countRes)
+			log.Printf("Response recive in last 3 second: %d", countRes)
 		}
 	}()
 
 	numberOfRoutine := int(math.Ceil(float64(numRows) / 100.0))
 	tickerSendRequest := time.NewTicker(1 * time.Second)
-	timeout := time.After(1 * time.Minute)
+	timeout := time.After(30 * time.Second)
 
 	for {
 		select {

@@ -2,11 +2,13 @@ package services
 
 import (
 	"bytes"
-	"net/http"
+	// "net/http"
 	"fmt"
 	"encoding/json"
 
 	"github.com/KhanhLinh2810/5G-core/smf/internal/types"
+	"github.com/KhanhLinh2810/5G-core/smf/pkg/config"
+
 )
 
 func SendN1N2Mess(sessionInfo *types.CreateSessionRequest) error {
@@ -16,7 +18,7 @@ func SendN1N2Mess(sessionInfo *types.CreateSessionRequest) error {
 		return fmt.Errorf("failed to marshal sessionInfo: %w", err)
 	}
 
-	resp, err := http.Post(amfURL, "application/json", bytes.NewBuffer(jsonData))
+	resp, err := config.HttpClient.Post(amfURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return fmt.Errorf("HTTP POST failed: %w", err)
 	}

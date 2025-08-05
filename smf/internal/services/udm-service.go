@@ -4,25 +4,30 @@ import (
 	"fmt"
 	"net/http"
 	"io/ioutil"
+
+	"github.com/KhanhLinh2810/5G-core/smf/pkg/config"
+
 )
 
-func ValidateImsi(supi string) ([]byte, error) {
+func ValidateImsi(supi string) (int, []byte, error) {
 	udmURL := fmt.Sprintf("http://udm:8000/nudm-sdm/v2/%s/sm-data", supi)
 
-	// Gửi request GET
-	resp, err := http.Get(udmURL)
+	resp, err := config.HttpClient.Get(udmURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return http.StatusBadGateway, nil, fmt.Errorf("failed to send request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read body: %w", err)
+		return resp.StatusCode, nil, fmt.Errorf("failed to read response body: %w", err)
 	}
+	if resp.StatusCode == http.StatusNotFound {
+		return resp.StatusCode, body, fmt.Errorf("smf not found %s", supi)
+	} 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("server returned status %d: %s", resp.StatusCode, string(body))
+		return resp.StatusCode, body, fmt.Errorf("server returned status %d: %s", resp.StatusCode, string(body))
 	}
 
-	return body, nil
+	return resp.StatusCode, body, nil
 }

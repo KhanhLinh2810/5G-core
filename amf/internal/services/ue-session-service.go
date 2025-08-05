@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/KhanhLinh2810/5G-core/amf/internal/types"
+	"github.com/KhanhLinh2810/5G-core/smf/pkg/config"
 )
 
 func MockDataForUERequestHandler() []byte {
@@ -30,7 +31,7 @@ func MockDataForUERequestHandler() []byte {
 
 func CreateSession(csrJSON []byte) (*http.Response, error) {
 	smfURL := "http://smf:40/nsmf-pdusession/v1/sm-contexts"
-	resp, err := http.Post(smfURL, "application/json", bytes.NewBuffer(csrJSON))
+	resp, err := config.HttpClient.Post(smfURL, "application/json", bytes.NewBuffer(csrJSON))
 	if err != nil {
 		return nil, err
 	}

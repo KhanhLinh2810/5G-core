@@ -23,6 +23,7 @@ type Session struct {
 type JobType string
 
 const (
+	CreateSession      JobType = "CREATE_SESSION"
 	UpdateSMF      JobType = "UPDATE_SMF"
 	ProcessMessage JobType = "PROCESS_MESSAGE"
 	SendEmail      JobType = "SEND_EMAIL"
@@ -32,4 +33,5 @@ type Job struct {
 	ID      int
 	Type    JobType
 	Payload interface{}
+	ResultChan chan any
 }

@@ -32,12 +32,13 @@ func GetSDMDetail(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-	"supi": session.Supi,
-	"dnn":  session.Dnn,
-	"sNssai": map[string]interface{}{
-		"sst": session.Sst,
-		"sd":  session.Sd,
-	},})
+		"supi": session.Supi,
+		"dnn":  session.Dnn,
+		"sNssai": map[string]interface{}{
+			"sst": session.Sst,
+			"sd":  session.Sd,
+		},
+	})
 
 }
 
@@ -67,6 +68,17 @@ func CreateSession(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed at index %d: %v", i, err)})
 			return
 		}
+	}
+
+	sdm := &types.SDMData{
+			Supi: "imsi-20893000000026",
+			Dnn:  "v-internet",
+			Sst:  2,
+			Sd:   "112233",
+	}
+	if err := models.CreateSession(sdm); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error":"Failed" })
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Successfully created %d sessions", numRows)})
