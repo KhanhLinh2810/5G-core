@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -9,8 +10,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"io/ioutil"
-
 
 	"github.com/gin-gonic/gin"
 
@@ -34,7 +33,7 @@ func UECreateSession(c *gin.Context) {
 		return
 	}
 	if resp == nil {
-		log.Printf("failed d to SMF: %v",resp)
+		log.Printf("failed d to SMF: %v", resp)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "SMF response is nil"})
 		return
 	}
@@ -49,7 +48,7 @@ func UECreateSession(c *gin.Context) {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		c.JSON(resp.StatusCode, string(body))		
+		c.JSON(resp.StatusCode, string(body))
 	}
 
 	// Log status
@@ -116,12 +115,12 @@ func MultiUECreateSession(c *gin.Context) {
 	for {
 		select {
 		case <-tickerSendRequest.C:
-			numberOfRoutine := int(math.Ceil(float64(numberOfRequestSend) / 100.0)) -1
+			numberOfRoutine := int(math.Ceil(float64(numberOfRequestSend)/100.0)) - 1
 			for i := 1; i <= numberOfRoutine; i++ {
 				wg.Add(1)
 				go SendRequestCreateSessionToSMF(&wg, csrJSON, &countRequest, 100)
 			}
-			numberOfRequestInGoroutine := numberOfRequestSend - numberOfRoutine * 100
+			numberOfRequestInGoroutine := numberOfRequestSend - numberOfRoutine*100
 			wg.Add(1)
 			go SendRequestCreateSessionToSMF(&wg, csrJSON, &countRequest, numberOfRequestInGoroutine)
 			if numberOfRequestSend < numRows {
@@ -143,7 +142,7 @@ func SendRequestCreateSessionToSMF(wg *sync.WaitGroup, csrJSON []byte, countRequ
 		atomic.AddInt32(countRequest, 1)
 		resp, err := services.CreateSession(csrJSON)
 		if err != nil {
-			log.Printf("faild to send smf: ", err)
+			log.Printf("faild to send smf: %v", err)
 			return
 		}
 		if resp == nil {

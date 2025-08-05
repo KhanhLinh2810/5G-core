@@ -3,22 +3,25 @@ package services
 import (
 	"bytes"
 	// "net/http"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"math/rand"
 
 	"github.com/KhanhLinh2810/5G-core/smf/internal/types"
 	"github.com/KhanhLinh2810/5G-core/smf/pkg/config"
-
 )
 
 func SendN1N2Mess(sessionInfo *types.CreateSessionRequest) error {
-	amfURL := fmt.Sprintf("http://amf:9010/namf-comm/v1/ue-context/%s/n1-n2-messages", sessionInfo.Supi )
+	amfURL := fmt.Sprintf("http://amf:9010/namf-comm/v1/ue-context/%s/n1-n2-messages", sessionInfo.Supi)
 	jsonData, err := json.Marshal(sessionInfo)
 	if err != nil {
 		return fmt.Errorf("failed to marshal sessionInfo: %w", err)
 	}
 
-	resp, err := config.HttpClient.Post(amfURL, "application/json", bytes.NewBuffer(jsonData))
+	indexHttp := rand.Intn(config.NUM_CLIENT)
+	httpClient := config.ListHttpClient[indexHttp]
+
+	resp, err := httpClient.Post(amfURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return fmt.Errorf("HTTP POST failed: %w", err)
 	}

@@ -2,17 +2,19 @@ package services
 
 import (
 	"fmt"
-	"net/http"
 	"io/ioutil"
+	"math/rand"
+	"net/http"
 
 	"github.com/KhanhLinh2810/5G-core/smf/pkg/config"
-
 )
 
 func ValidateImsi(supi string) (int, []byte, error) {
 	udmURL := fmt.Sprintf("http://udm:8000/nudm-sdm/v2/%s/sm-data", supi)
+	indexHttp := rand.Intn(config.NUM_CLIENT)
+	httpClient := config.ListHttpClient[indexHttp]
 
-	resp, err := config.HttpClient.Get(udmURL)
+	resp, err := httpClient.Get(udmURL)
 	if err != nil {
 		return http.StatusBadGateway, nil, fmt.Errorf("failed to send request: %w", err)
 	}
@@ -24,7 +26,7 @@ func ValidateImsi(supi string) (int, []byte, error) {
 	}
 	if resp.StatusCode == http.StatusNotFound {
 		return resp.StatusCode, body, fmt.Errorf("smf not found %s", supi)
-	} 
+	}
 	if resp.StatusCode != http.StatusOK {
 		return resp.StatusCode, body, fmt.Errorf("server returned status %d: %s", resp.StatusCode, string(body))
 	}

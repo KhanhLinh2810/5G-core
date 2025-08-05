@@ -1,10 +1,14 @@
 package main
 
 import (
+	"github.com/KhanhLinh2810/5G-core/amf/pkg/config"
 	"github.com/KhanhLinh2810/5G-core/amf/pkg/routes"
 	"github.com/gin-gonic/gin"
-	"github.com/KhanhLinh2810/5G-core/amf/pkg/config"
 
+	"net/http"
+
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 )
 
 func main() {
@@ -17,5 +21,17 @@ func main() {
 	})
 
 	routes.UESessionRoutes(router)
-	router.Run(":9010")
+
+	h2s := &http2.Server{}
+	handler := h2c.NewHandler(router, h2s)
+
+	addr := ":9010"
+	// Use custom HTTP server
+	server := &http.Server{
+		Addr:    addr,
+		Handler: handler,
+	}
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		panic(err)
+	}
 }
