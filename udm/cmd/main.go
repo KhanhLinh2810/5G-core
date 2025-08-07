@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/KhanhLinh2810/5G-core/udm/pkg/config"
 	"github.com/KhanhLinh2810/5G-core/udm/pkg/routes"
+	"github.com/KhanhLinh2810/5G-core/udm/internal/workers"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/http2"
@@ -12,8 +14,11 @@ import (
 )
 
 func main() {
+	fmt.Println("start udm server")
 	config.ConnectRedis()
 	gin.SetMode(gin.ReleaseMode)
+
+	go workers.StartWorkerPool(100)
 
 	router := gin.New()
 	routes.SMFRoutes(router)

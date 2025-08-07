@@ -14,33 +14,33 @@ import (
 	"github.com/KhanhLinh2810/5G-core/udm/internal/types"
 )
 
-func GetSDMDetail(c *gin.Context) {
-	supi := c.Param("imsi")
-	if supi == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing supi parameter"})
-		return
-	}
+// func GetSDMDetail(c *gin.Context) {
+// 	supi := c.Param("imsi")
+// 	if supi == "" {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing supi parameter"})
+// 		return
+// 	}
 
-	session, err := models.GetSessionBySupi(supi)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "No session found for SUPI",
-			"supi":    supi,
-			"details": err.Error(),
-		})
-		return
-	}
+// 	session, err := models.GetSessionBySupi(supi)
+// 	if err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{
+// 			"error":   "No session found for SUPI",
+// 			"supi":    supi,
+// 			"details": err.Error(),
+// 		})
+// 		return
+// 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"supi": session.Supi,
-		"dnn":  session.Dnn,
-		"sNssai": map[string]interface{}{
-			"sst": session.Sst,
-			"sd":  session.Sd,
-		},
-	})
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"supi": session.Supi,
+// 		"dnn":  session.Dnn,
+// 		"sNssai": map[string]interface{}{
+// 			"sst": session.Sst,
+// 			"sd":  session.Sd,
+// 		},
+// 	})
 
-}
+// }
 
 func CreateSession(c *gin.Context) {
 	rowStr := c.Param("rowDb")

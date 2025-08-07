@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/KhanhLinh2810/5G-core/smf/pkg/config"
 	"github.com/KhanhLinh2810/5G-core/smf/pkg/routes"
 
@@ -14,6 +15,7 @@ import (
 )
 
 func main() {
+	fmt.Println("start smf server")
 	config.ConnectRedis()
 	config.InitHTTPClient()
 	gin.SetMode(gin.ReleaseMode)
